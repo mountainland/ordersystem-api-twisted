@@ -1,13 +1,15 @@
 import json
 
+from order import functions
+
 
 def ReadCustomers() -> dict:
-    with open("customer.json", "r") as f:
+    with open("data.json", "r") as f:
         return json.load(f)
 
 
 def DumpCustomers(orders) -> None:
-    with open("customer.json", "w") as f:
+    with open("data.json", "w") as f:
         json.dump(orders, f)
 
 
@@ -17,3 +19,14 @@ def GetCustomer(OrderId) -> dict:
 
     return CustomerToReturn
 
+
+def CalcCustomer(CustomerId):
+    Orders = functions.ReadOrders()
+
+    Sum = 0
+
+    for Order in Orders:
+        if Order["Customer"] == CustomerId:
+            Sum += Order["Price"]
+
+    return Sum

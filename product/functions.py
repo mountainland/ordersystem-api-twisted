@@ -2,19 +2,18 @@ import json
 
 
 def ReadProducts() -> dict:
-    with open("order.json", "r") as f:
+    with open("data.json", "r") as f:
         return json.load(f)
 
 
 def DumpProducts(orders) -> None:
-    with open("order.json", "w") as f:
+    with open("data.json", "w") as f:
         json.dump(orders, f)
 
 
-def GetProduct(OrderId) -> dict:
+def GetProduct(ProductId: int) -> dict:
     Products = ReadProducts()
-    ProductToReturn = Products["orders"][OrderId]
-
+    ProductToReturn = Products[ProductId]
     return ProductToReturn
 
 
