@@ -5,7 +5,8 @@ from order import functions
 
 def ReadCustomers() -> dict:
     with open("data.json", "r") as f:
-        return json.load(f)
+        data = json.load(f)
+        return data 
 
 
 def DumpCustomers(orders) -> None:
@@ -30,3 +31,4 @@ def CalcCustomer(CustomerId):
             Sum += Order["Price"]
 
     return Sum
+            

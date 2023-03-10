@@ -2,8 +2,10 @@ from order.functions import ReadOrders, DumpOrders
 
 
 class Order():
-    def __init__(self, Order, Customer, Price=0, IsReady=False):
+    def __init__(self, Order: list, Customer: int, Price: int=0, IsReady: bool=False):
         self.Order: list = Order
+        if not type(Customer) == int:
+            raise TypeError("Should be int")
         self.Customer: int = Customer
         self.Price: int = Price
         self.IsReady: bool = IsReady
@@ -17,6 +19,8 @@ class Order():
         self.Price = price
 
     def DumpOrder(self):
+        if type(self.Order) != list or type(self.Customer) != int or type(self.Price) != int:
+            raise TypeError("YOU ARE MONSTER")
         if self.Price == 0:
             self.CalcPrice()
 

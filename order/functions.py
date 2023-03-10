@@ -1,24 +1,25 @@
 import json
 
 
-def ReadOrders() -> dict:
+def ReadOrders(times=0) -> dict:
     with open("data.json", "r") as f:
-        return json.load(f)
+        data = json.load(f)
+        return data
 
 
-def DumpOrders(orders) -> None:
+def DumpOrders(orders: dict) -> None:
     with open("data.json", "w") as f:
         json.dump(orders, f)
 
 
-def GetOrder(OrderId) -> dict:
+def GetOrder(OrderId: int) -> dict:
     Orders = ReadOrders()
     OrderToReturn = Orders["orders"][OrderId]
 
     return OrderToReturn
 
 
-def SetOrder(OrderId, Order: dict) -> None:
+def SetOrder(OrderId: int, Order: dict) -> None:
     Orders = ReadOrders()
     Orders[OrderId] = Order
     DumpOrders(Orders)

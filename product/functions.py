@@ -3,10 +3,11 @@ import json
 
 def ReadProducts() -> dict:
     with open("data.json", "r") as f:
-        return json.load(f)
+        data = json.load(f)
+        return data
 
 
-def DumpProducts(orders) -> None:
+def DumpProducts(orders: dict) -> None:
     with open("data.json", "w") as f:
         json.dump(orders, f)
 
@@ -17,7 +18,7 @@ def GetProduct(ProductId: int) -> dict:
     return ProductToReturn
 
 
-def SetProduct(ProductId, Product: dict) -> None:
+def SetProduct(ProductId: int, Product: dict) -> None:
     Products = ReadProducts()
     Products[ProductId] = Product
     DumpProducts(Product)
