@@ -9,15 +9,15 @@ def ReadCustomers() -> dict:
         return data 
 
 
-def DumpCustomers(orders) -> None:
+def DumpCustomers(customers) -> None:
     with open("data.json", "w") as f:
-        json.dump(orders, f)
+        json.dump(customers, f)
 
 
-def GetCustomer(OrderId) -> dict:
+def GetCustomer(CustomerId) -> dict:
     Customers = ReadCustomers()
-    CustomerToReturn = Customers["customers"][OrderId]
-
+    CustomerToReturn = Customers["customers"][CustomerId]
+    CustomerToReturn["Balance"] = CalcCustomer(CustomerId)
     return CustomerToReturn
 
 

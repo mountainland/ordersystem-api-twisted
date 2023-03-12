@@ -9,7 +9,7 @@ from customer.classes import Customer
 from customer.functions import ReadCustomers, GetCustomer
 
 
-@route('/order/', methods=["GET", "POST"])
+@route('/orders/', methods=["GET", "POST"])
 def orders(request):
     if request.method == b"POST":
         content = json.loads(request.content.read())
@@ -85,4 +85,4 @@ def customers(request, CustomerId):
         return str(CustomerToReturn)
 
 
-run("localhost", 8080)
+run("localhost", 8080, displayTracebacks=False)
