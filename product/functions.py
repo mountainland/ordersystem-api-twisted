@@ -22,3 +22,4 @@ def SetProduct(ProductId: int, Product: dict) -> None:
     Products = ReadProducts()
     Products[ProductId] = Product
     DumpProducts(Product)
+

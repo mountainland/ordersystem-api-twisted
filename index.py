@@ -8,6 +8,7 @@ from product.functions import ReadProducts, GetProduct, SetProduct
 from customer.classes import Customer
 from customer.functions import ReadCustomers, GetCustomer
 
+from config import config
 
 @route('/orders/', methods=["GET", "POST"])
 def orders(request):
@@ -49,6 +50,7 @@ def products(request):
         return json.dumps({"products": ReadProducts()["products"]})
 
 
+
 @route('/product/<int:ProductId>', methods=["GET", "POST"])
 def product(request, ProductId):
     if request.method == b"POST":
@@ -65,8 +67,8 @@ def product(request, ProductId):
         return str(ProductToReturn)
 
 
-@route('/customer/', methods=["GET", "POST"])
-def customer(request):
+@route('/customers/', methods=["GET", "POST"])
+def customers(request):
     if request.method == b"POST":
         content = json.loads(request.content.read())
         CustomerItem = Customer(content["FirstName"], content["LastName"])
@@ -77,12 +79,12 @@ def customer(request):
         return json.dumps({"customers": ReadCustomers()["customers"]})
 
 
-@route('/customers/<int:CustomerId>', methods=["GET"])
-def customers(request, CustomerId):
+@route('/customer/<int:CustomerId>', methods=["GET"])
+def customer(request, CustomerId):
     if request.method == b"GET":
         CustomerToReturn = GetCustomer(CustomerId)
 
         return str(CustomerToReturn)
 
 
-run("localhost", 8080, displayTracebacks=False)
+run(config.HOST, config.PORT, displayTracebacks=False)
