@@ -6,7 +6,7 @@ from order import functions
 def ReadCustomers() -> dict:
     with open("data.json", "r") as f:
         data = json.load(f)
-        return data 
+        return data
 
 
 def DumpCustomers(customers) -> None:
