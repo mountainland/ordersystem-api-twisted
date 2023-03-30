@@ -6,7 +6,7 @@ from order.functions import ReadOrders, GetOrder, SetOrder
 from product.classes import Product
 from product.functions import ReadProducts, GetProduct, SetProduct
 from customer.classes import Customer
-from customer.functions import ReadCustomers, GetCustomer
+from customer.functions import ReadCustomers, GetCustomer, SetCustomer
 
 from config import config
 
@@ -79,12 +79,23 @@ def customers(request):
         return json.dumps({"customers": ReadCustomers()["customers"]})
 
 
-@route('/customer/<int:CustomerId>', methods=["GET"])
+@route('/customer/<int:CustomerId>', methods=["GET", "POST"])
 def customer(request, CustomerId):
     if request.method == b"GET":
         CustomerToReturn = GetCustomer(CustomerId)
 
-        return str(CustomerToReturn)
+        return json.dumps(CustomerToReturn)
+    
+    if request.method == b"POST":
+        content = json.loads(request.content.read())
+        CustomerToReturn = GetCustomer(CustomerId)
+        for item in CustomerToReturn:
+            if item in content:
+                CustomerToReturn[item] = content[item]
+        SetCustomer(CustomerId, CustomerToReturn)
+
+        return json.dumps({"status": "Ok"})        
+        
 
 
 run(config.HOST, config.PORT, displayTracebacks=False)

@@ -31,4 +31,10 @@ def CalcCustomer(CustomerId):
             Sum += Order["Price"]
 
     return Sum
-            
+
+def SetCustomer(Customerid, data):
+    customers = ReadCustomers()["customers"]
+
+    customers[Customerid] = data
+
+    DumpCustomers(customers)
