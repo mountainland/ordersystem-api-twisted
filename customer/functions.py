@@ -17,7 +17,7 @@ def DumpCustomers(customers) -> None:
 def GetCustomer(CustomerId) -> dict:
     Customers = ReadCustomers()
     CustomerToReturn = Customers["customers"][CustomerId]
-    CustomerToReturn["Balance"] = CalcCustomer(CustomerId)
+    CustomerToReturn["Balance"] -= CalcCustomer(CustomerId)
     return CustomerToReturn
 
 
@@ -28,13 +28,13 @@ def CalcCustomer(CustomerId):
 
     for Order in Orders:
         if Order["Customer"] == CustomerId:
-            Sum += Order["Price"]
+            Sum -= Order["Price"]
 
     return Sum
 
 def SetCustomer(Customerid, data):
-    customers = ReadCustomers()["customers"]
+    customers = ReadCustomers()
 
-    customers[Customerid] = data
+    customers["customers"][Customerid] = data
 
     DumpCustomers(customers)
