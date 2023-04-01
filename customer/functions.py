@@ -22,7 +22,7 @@ def GetCustomer(CustomerId) -> dict:
 
 
 def CalcCustomer(CustomerId):
-    Orders = functions.ReadOrders()
+    Orders = functions.ReadOrders()["customers"]
 
     Sum = 0
 
