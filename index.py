@@ -8,18 +8,29 @@ from product.functions import ReadProducts, GetProduct, SetProduct
 from customer.classes import Customer
 from customer.functions import ReadCustomers, GetCustomer, SetCustomer
 
-from login.functions import CreateUser, IsPasswordRight, CheckLogin
+from login.functions import CreateUser, IsPasswordRight, CheckLogin, GetUser
 
 from config import config
+
+
+def abort(request, code):
+    request.setResponseCode(code)
+    return ""
+
+
+def admin_required(request):
+    user = GetUser(request.getHeader('user'))
+    if not user["is_admin"] == True:
+        abort(request, 403)
+
 
 @route('/orders/', methods=["GET", "POST"])
 def orders(request):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"POST":
-        
+
         content = json.loads(request.content.read())
         OrderItem = Order(content["order"], content["customer"])
         OrderId, Price = OrderItem.DumpOrder()
@@ -32,10 +43,10 @@ def orders(request):
 @route('/order/<int:OrderId>', methods=["GET", "POST"])
 def order(request, OrderId):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"POST":
+        admin_required(request)
         content = json.loads(request.content.read())
         if content["IsReady"] == True:
             item = GetOrder(OrderId)
@@ -52,9 +63,8 @@ def order(request, OrderId):
 @route('/products/', methods=["GET", "POST"])
 def products(request):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"POST":
         content = json.loads(request.content.read())
         ProductItem = Product(content["Name"], content["Price"])
@@ -65,13 +75,11 @@ def products(request):
         return json.dumps({"products": ReadProducts()["products"]})
 
 
-
 @route('/product/<int:ProductId>', methods=["GET", "POST"])
 def product(request, ProductId):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"POST":
         content = json.loads(request.content.read())
         if content["IsReady"] == True:
@@ -89,9 +97,8 @@ def product(request, ProductId):
 @route('/customers/', methods=["GET", "POST"])
 def customers(request):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"POST":
         content = json.loads(request.content.read())
         CustomerItem = Customer(content["FirstName"], content["LastName"])
@@ -105,14 +112,13 @@ def customers(request):
 @route('/customer/<int:CustomerId>', methods=["GET", "POST"])
 def customer(request, CustomerId):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"GET":
         CustomerToReturn = GetCustomer(CustomerId)
 
         return json.dumps(CustomerToReturn)
-    
+
     if request.method == b"POST":
         content = json.loads(request.content.read())
         CustomerToReturn = GetCustomer(CustomerId)
@@ -121,23 +127,29 @@ def customer(request, CustomerId):
                 CustomerToReturn[item] = content[item]
         SetCustomer(CustomerId, CustomerToReturn)
 
-        return json.dumps({"status": "Ok"})        
-        
+        return json.dumps({"status": "Ok"})
+
+
 @route('/users/', methods=["POST"])
 def users(request):
     if not CheckLogin(request):
-        request.setResponseCode(401)
-        return ""
-    
+        abort(request, 401)
+
     if request.method == b"POST":
+        if not user["is_admin"] == True:
+            abort(request, 403)
+
         data = json.loads(request.content.read())
-        
-        CreateUser(data["username"], data["password"], data["firstname"], data["lastname"], request.getHeader('user'))
-        
+
+        CreateUser(data["username"], data["password"], data["firstname"],
+                   data["lastname"], request.getHeader('user'), data['is_admin'])
+
+
 @route("/login/", methods=["POST"])
 def login(request):
     if not CheckLogin(request):
         request.setResponseCode(401)
-        return json.dumps({"error": "Väärä salasana tai käyttäjänimi"})        
+        return json.dumps({"error": "Väärä salasana tai käyttäjänimi"})
+
 
 run(config.HOST, config.PORT, displayTracebacks=False)
