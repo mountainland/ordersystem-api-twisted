@@ -32,6 +32,7 @@ def CalcCustomer(CustomerId):
 
     return Sum
 
+
 def SetCustomer(Customerid, data):
     customers = ReadCustomers()
 

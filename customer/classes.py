@@ -15,7 +15,8 @@ class Customer():
         customers = ReadCustomers()
         Id = len(customers["customers"])
         self.Id = Id
-        customers["customers"].append({"FirstName": self.FirstName, "LastName": self.LastName, "Balance": self.Balance})
+        customers["customers"].append(
+            {"FirstName": self.FirstName, "LastName": self.LastName, "Balance": self.Balance})
         DumpCustomers(customers)
         return Id
 

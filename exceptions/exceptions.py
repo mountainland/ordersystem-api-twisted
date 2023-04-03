@@ -6,7 +6,7 @@ class UserNotFoundException(Exception):
         message -- explanation of the error
     """
 
-    def __init__(self, salary, message="Username not found"):
-        self.salary = salary
+    def __init__(self, username, message="Username not found"):
+        self.username = username
         self.message = message
         super().__init__(self.message)
