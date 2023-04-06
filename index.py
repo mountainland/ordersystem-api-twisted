@@ -13,7 +13,7 @@ from login.functions import CreateUser, IsPasswordRight, CheckLogin, GetUser
 from config import config
 
 
-def abort(request, code):
+def abort(request, code, response=""):
     request.setResponseCode(code)
     return ""
 
@@ -23,14 +23,17 @@ def admin_required(request):
     if not user["is_admin"] == True:
         abort(request, 403)
 
+def login_required(request, response=""):
+    if not CheckLogin(request):
+        abort(request, 401, response=response)
 
 @route('/orders/', methods=["GET", "POST"])
 def orders(request):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
+
 
     if request.method == b"POST":
-
         content = json.loads(request.content.read())
         OrderItem = Order(content["order"], content["customer"])
         OrderId, Price = OrderItem.DumpOrder()
@@ -42,10 +45,12 @@ def orders(request):
 
 @route('/order/<int:OrderId>', methods=["GET", "POST"])
 def order(request, OrderId):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
+
 
     if request.method == b"POST":
+
         admin_required(request)
         content = json.loads(request.content.read())
         if content["IsReady"] == True:
@@ -55,6 +60,7 @@ def order(request, OrderId):
         return str(item)
 
     if request.method == b"GET":
+
         OrderToReturn = GetOrder(OrderId)
 
         return str(OrderToReturn)
@@ -62,23 +68,27 @@ def order(request, OrderId):
 
 @route('/products/', methods=["GET", "POST"])
 def products(request):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
+
 
     if request.method == b"POST":
+
         content = json.loads(request.content.read())
         ProductItem = Product(content["Name"], content["Price"])
         ProductId = ProductItem.DumpProduct()
         return json.dumps({"status": "OK", "id": ProductId})
 
     if request.method == b"GET":
+
         return json.dumps({"products": ReadProducts()["products"]})
 
 
 @route('/product/<int:ProductId>', methods=["GET", "POST"])
 def product(request, ProductId):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
+
 
     if request.method == b"POST":
         content = json.loads(request.content.read())
@@ -89,6 +99,7 @@ def product(request, ProductId):
         return str(item)
 
     if request.method == b"GET":
+
         ProductToReturn = GetProduct(ProductId)
 
         return str(ProductToReturn)
@@ -96,10 +107,12 @@ def product(request, ProductId):
 
 @route('/customers/', methods=["GET", "POST"])
 def customers(request):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
+
 
     if request.method == b"POST":
+
         content = json.loads(request.content.read())
         CustomerItem = Customer(content["FirstName"], content["LastName"])
         Id = CustomerItem.DumpCustomer()
@@ -111,8 +124,9 @@ def customers(request):
 
 @route('/customer/<int:CustomerId>', methods=["GET", "POST"])
 def customer(request, CustomerId):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
+
 
     if request.method == b"GET":
         CustomerToReturn = GetCustomer(CustomerId)
@@ -132,24 +146,27 @@ def customer(request, CustomerId):
 
 @route('/users/', methods=["POST"])
 def users(request):
-    if not CheckLogin(request):
-        abort(request, 401)
+    login_required(request)
+    
 
     if request.method == b"POST":
-        if not user["is_admin"] == True:
-            abort(request, 403)
+        admin_required(request)
 
         data = json.loads(request.content.read())
 
         CreateUser(data["username"], data["password"], data["firstname"],
-                   data["lastname"], request.getHeader('user'), data['is_admin'])
+                   data["lastname"], request.getHeader('user'), data.get('is_admin', False))
+
 
 
 @route("/login/", methods=["POST"])
 def login(request):
-    if not CheckLogin(request):
-        request.setResponseCode(401)
-        return json.dumps({"error": "Väärä salasana tai käyttäjänimi"})
+    
 
+    login_required(request, json.dumps({"error": "Väärä salasana tai käyttäjänimi"}))
+
+    username = request.getHeader('user')
+    user = GetUser(username)
+    return json.dumps({"is_admin": user.get("is_admin")})
 
 run(config.HOST, config.PORT, displayTracebacks=False)
