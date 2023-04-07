@@ -18,13 +18,17 @@ def abort(request, code, response=""):
     return ""
 
 
-def admin_required(request):
+def admin_required(request, response=""):
     user = GetUser(request.getHeader('user'))
     if not user["is_admin"] == True:
-        abort(request, 403)
+        if response == "":
+            response = json.dumps({"error": "Admin level access required"})
+        abort(request, 403, response=response)
 
 def login_required(request, response=""):
     if not CheckLogin(request):
+        if response == "":
+            response = json.dumps({"error": "Login required"})
         abort(request, 401, response=response)
 
 @route('/orders/', methods=["GET", "POST"])
