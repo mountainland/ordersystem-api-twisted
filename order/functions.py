@@ -1,25 +1,26 @@
 import json
 
+from db.db import get_connection
+
 
 def ReadOrders(times=0) -> dict:
-    with open("data.json", "r") as f:
-        data = json.load(f)
-        return data
+    myclient = get_connection()
+    mydb = myclient["ordersystem"]
+    mycol = mydb["orders"]
 
-
-def DumpOrders(orders: dict) -> None:
-    with open("data.json", "w") as f:
-        json.dump(orders, f)
+    return mycol
 
 
 def GetOrder(OrderId: int) -> dict:
     Orders = ReadOrders()
-    OrderToReturn = Orders["orders"][OrderId]
+    query = {"_id": OrderId}
+    OrderToReturn = Orders.find(query)
 
     return OrderToReturn
 
 
-def SetOrder(OrderId: int, Order: dict) -> None:
+def SetOrder(OrderId: int, Order: dict) -> None:    
     Orders = ReadOrders()
-    Orders[OrderId] = Order
-    DumpOrders(Orders)
+    query = {"_id": OrderId}
+    new = {"$set": Order}
+    Orders.update_one(query, new)

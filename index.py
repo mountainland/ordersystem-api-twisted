@@ -44,7 +44,9 @@ def orders(request):
         return str({"status": "OK", "id": OrderId, "price": Price})
 
     if request.method == b"GET":
-        return json.dumps({"orders": ReadOrders()["orders"]})
+        orders = ReadOrders()
+        all_orders = orders.find()
+        return json.dumps({"orders": all_orders})
 
 
 @route('/order/<int:OrderId>', methods=["GET", "POST"])

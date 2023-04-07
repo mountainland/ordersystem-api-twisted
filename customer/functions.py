@@ -1,34 +1,34 @@
 import json
 
+from db.db import get_connection
 from order import functions
 
 
 def ReadCustomers() -> dict:
-    with open("data.json", "r") as f:
-        data = json.load(f)
-        return data
+    myclient = get_connection()
+    mydb = myclient["ordersystem"]
+    mycol = mydb["customers"]
 
-
-def DumpCustomers(customers) -> None:
-    with open("data.json", "w") as f:
-        json.dump(customers, f)
+    return mycol
 
 
 def GetCustomer(CustomerId) -> dict:
     Customers = ReadCustomers()
-    CustomerToReturn = Customers["customers"][CustomerId]
-    CustomerToReturn["Balance"] -= CalcCustomer(CustomerId)
+    CustomerToReturn = Customers.find({"_id": CustomerId})
+    CustomerToReturn["balance"] -= CalcCustomer(CustomerId)
     return CustomerToReturn
 
 
 def CalcCustomer(CustomerId):
-    Orders = functions.ReadOrders()["customers"]
+    Orders = functions.ReadOrders()
+    myquery = { "customer": CustomerId }
+
+    customer_orders = Orders.find(myquery)
 
     Sum = 0
 
-    for Order in Orders:
-        if Order["Customer"] == CustomerId:
-            Sum -= Order["Price"]
+    for Order in customer_orders:
+        Sum -= Order["price"]
 
     return Sum
 
@@ -36,6 +36,6 @@ def CalcCustomer(CustomerId):
 def SetCustomer(Customerid, data):
     customers = ReadCustomers()
 
-    customers["customers"][Customerid] = data
-
-    DumpCustomers(customers)
+    new = {"$set": data}
+    
+    customers.update_one({"_id": Customerid}, new)

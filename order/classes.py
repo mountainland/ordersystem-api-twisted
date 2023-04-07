@@ -1,5 +1,5 @@
 from order.functions import ReadOrders, DumpOrders
-
+from db.db import get_connection
 
 class Order():
     def __init__(self, Order: list, Customer: int, Price: int = 0, IsReady: bool = False):
