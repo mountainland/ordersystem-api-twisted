@@ -25,17 +25,17 @@ def admin_required(request, response=""):
             response = json.dumps({"error": "Admin level access required"})
         abort(request, 403, response=response)
 
+
 def login_required(request, response=""):
     if not CheckLogin(request):
         if response == "":
             response = json.dumps({"error": "Login required"})
         abort(request, 401, response=response)
 
+
 @route('/orders/', methods=["GET", "POST"])
 def orders(request):
     login_required(request)
-    
-
 
     if request.method == b"POST":
         content = json.loads(request.content.read())
@@ -50,8 +50,6 @@ def orders(request):
 @route('/order/<int:OrderId>', methods=["GET", "POST"])
 def order(request, OrderId):
     login_required(request)
-    
-
 
     if request.method == b"POST":
 
@@ -73,8 +71,6 @@ def order(request, OrderId):
 @route('/products/', methods=["GET", "POST"])
 def products(request):
     login_required(request)
-    
-
 
     if request.method == b"POST":
 
@@ -91,8 +87,6 @@ def products(request):
 @route('/product/<int:ProductId>', methods=["GET", "POST"])
 def product(request, ProductId):
     login_required(request)
-    
-
 
     if request.method == b"POST":
         content = json.loads(request.content.read())
@@ -112,13 +106,12 @@ def product(request, ProductId):
 @route('/customers/', methods=["GET", "POST"])
 def customers(request):
     login_required(request)
-    
-
 
     if request.method == b"POST":
 
         content = json.loads(request.content.read())
-        CustomerItem = Customer(content["FirstName"], content["LastName"])
+        CustomerItem = Customer(
+            content["FirstName"], content["LastName"], content["PhoneNumber"], content["Email"])
         Id = CustomerItem.DumpCustomer()
         return str({"status": "OK", "id": Id})
 
@@ -129,8 +122,6 @@ def customers(request):
 @route('/customer/<int:CustomerId>', methods=["GET", "POST"])
 def customer(request, CustomerId):
     login_required(request)
-    
-
 
     if request.method == b"GET":
         CustomerToReturn = GetCustomer(CustomerId)
@@ -151,7 +142,6 @@ def customer(request, CustomerId):
 @route('/users/', methods=["POST"])
 def users(request):
     login_required(request)
-    
 
     if request.method == b"POST":
         admin_required(request)
@@ -162,15 +152,15 @@ def users(request):
                    data["lastname"], request.getHeader('user'), data.get('is_admin', False))
 
 
-
 @route("/login/", methods=["POST"])
 def login(request):
-    
 
-    login_required(request, json.dumps({"error": "Väärä salasana tai käyttäjänimi"}))
+    login_required(request, json.dumps(
+        {"error": "Väärä salasana tai käyttäjänimi"}))
 
     username = request.getHeader('user')
     user = GetUser(username)
     return json.dumps({"is_admin": user.get("is_admin")})
+
 
 run(config.HOST, config.PORT, displayTracebacks=False)
