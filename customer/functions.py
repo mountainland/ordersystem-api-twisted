@@ -6,11 +6,13 @@ def ReadCustomers() -> dict:
     raise DeprecationWarning("ReadCustomers is deprecated")
 
 
-def GetCustomer(CustomerId) -> dict:
+def GetCustomer(CustomerId, recalculate=True) -> dict:
     CustomerToReturn = get_item(
         get_connection(), "ordersystem", "customers", {"ID": CustomerId})
     print(CustomerToReturn)
-    CustomerToReturn["balance"] -= CalcCustomer(CustomerId)
+    CustomerToReturn["balance"] = int(CustomerToReturn["balance"])
+    if recalculate:
+        CustomerToReturn["balance"] -= int(CalcCustomer(CustomerId))
     return CustomerToReturn
 
 
@@ -36,8 +38,17 @@ def SetCustomer(Customerid, data, admin=False):
     if admin:
         if "balance" in data:
             if data["balance"].startswith("="):
+                data["balance"] = data["balance"].replace("=","")
+                data["balance"] = int(data["balance"])
                 data["balance"] += CalcCustomer(Customerid)
-
+            else:
+                data["balance"] = int(data["balance"])
+                custo = GetCustomer(Customerid, False)
+                balance = custo.get("balance")
+                
+                data["balance"] += balance
+                
+    
     query = {"ID": Customerid}
     # if you remove $set this wont work: https://www.mongodb.com/docs/manual/reference/operator/update/set/
     new = {"$set": data}

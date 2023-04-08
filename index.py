@@ -45,7 +45,6 @@ def orders(request):
 
     if request.method == b"GET":
         orders = GetOrders()
-        print(orders)
         return json.dumps({"orders": orders})
 
 
