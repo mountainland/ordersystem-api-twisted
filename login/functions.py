@@ -41,7 +41,10 @@ def IsPasswordRight(Username, Password):
     try:
         User = GetUser(Username)
 
-        if bcrypt.checkpw(str.encode(Password), User["password"]):
+        if User["password"] == Password:
+            return True
+
+        elif bcrypt.checkpw(str.encode(Password), User["password"]):
             return True
 
         elif bcrypt.checkpw(HashPassword(str.encode(Password)), User["password"]):

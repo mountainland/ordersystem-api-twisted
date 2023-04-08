@@ -1,26 +1,23 @@
-import json
 
-from db.db import get_connection
 
+from db.db import get_connection, set_item, get_item, create_item, get_all
+
+def GetOrders():
+    all = get_all(get_connection(), "ordersystem", "orders")
+    return all
 
 def ReadOrders(times=0) -> dict:
-    myclient = get_connection()
-    mydb = myclient["ordersystem"]
-    mycol = mydb["orders"]
+    raise DeprecationWarning("ReadOrders is deprecated")
 
-    return mycol
-
+def CreateOrder(Order):
+    ID = create_item(get_connection(), "ordersystem", "orders", Order)
+    return ID
 
 def GetOrder(OrderId: int) -> dict:
-    Orders = ReadOrders()
-    query = {"_id": OrderId}
-    OrderToReturn = Orders.find(query)
-
+    OrderToReturn = get_item(get_connection(), "ordersystem", "orders", {"ID": OrderId})
     return OrderToReturn
 
-
 def SetOrder(OrderId: int, Order: dict) -> None:    
-    Orders = ReadOrders()
     query = {"_id": OrderId}
     new = {"$set": Order}
-    Orders.update_one(query, new)
+    set_item(get_connection(), "ordersystem", "orders", query, new)

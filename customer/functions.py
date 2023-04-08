@@ -1,41 +1,50 @@
-import json
-
-from db.db import get_connection
-from order import functions
+from db.db import get_connection, set_item, get_item, create_item, get_items, get_all
 
 
 def ReadCustomers() -> dict:
-    myclient = get_connection()
-    mydb = myclient["ordersystem"]
-    mycol = mydb["customers"]
-
-    return mycol
+    # This is deprecated and will be removed in a future release
+    raise DeprecationWarning("ReadCustomers is deprecated")
 
 
 def GetCustomer(CustomerId) -> dict:
-    Customers = ReadCustomers()
-    CustomerToReturn = Customers.find({"_id": CustomerId})
+    CustomerToReturn = get_item(
+        get_connection(), "ordersystem", "customers", {"ID": CustomerId})
+    print(CustomerToReturn)
     CustomerToReturn["balance"] -= CalcCustomer(CustomerId)
     return CustomerToReturn
 
 
+def create_customer(customer_dict):
+    ID = create_item(get_connection(), "ordersystem",
+                     "customers", customer_dict)
+    return ID
+
+
 def CalcCustomer(CustomerId):
-    Orders = functions.ReadOrders()
-    myquery = { "customer": CustomerId }
-
-    customer_orders = Orders.find(myquery)
-
+    Orders = get_items(get_connection(), "ordersystem",
+                       "orders", {"customer": CustomerId})
     Sum = 0
 
-    for Order in customer_orders:
-        Sum -= Order["price"]
+    for Order in Orders:
+        # This was earlier -=, and it caused bug, that made infinite money glich.
+        Sum += Order["price"]
 
     return Sum
 
 
-def SetCustomer(Customerid, data):
-    customers = ReadCustomers()
+def SetCustomer(Customerid, data, admin=False):
+    if admin:
+        if "balance" in data:
+            if data["balance"].startswith("="):
+                data["balance"] += CalcCustomer(Customerid)
 
+    query = {"ID": Customerid}
+    # if you remove $set this wont work: https://www.mongodb.com/docs/manual/reference/operator/update/set/
     new = {"$set": data}
-    
-    customers.update_one({"_id": Customerid}, new)
+    set_item(get_connection(), "ordersystem", "customers", query, new)
+
+
+def GetCustomers():
+    customers = get_all(get_connection(), "ordersystem", "customers")
+
+    return customers

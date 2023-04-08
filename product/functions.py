@@ -1,11 +1,9 @@
-import json
-
-from db.db import get_connection
+from db.db import get_connection, create_item, get_item, set_item, get_items, get_all
 
 def ReadProducts() -> dict: # TODO: Name isn't good, should probably be something, that lets you know, this is database
+    raise DeprecationWarning("ReadProducts() is deprecated, use GetProducts() instead")
     myclient = get_connection()
     mydb = myclient["ordersystem"]
-    collist = mydb.list_collection_names() # TODO: This doesnt do anything, remove when you can
     mycol = mydb["products"]
 
     return mycol
@@ -16,14 +14,20 @@ def DumpProducts(orders: dict) -> None:
 
 
 def GetProduct(ProductId: int) -> dict:
-    Products = ReadProducts()
-    query = {"_id": ProductId}
-    ProductToReturn = Products.find(query)
-    return ProductToReturn
+    Product = get_item(get_connection(), "ordersystem", "products", {"ID": ProductId})
 
+    return Product
+
+def CreateProduct(Product):
+    ID = create_item(get_connection(), "ordersystem", "products", Product)
+    
+    return ID
 
 def SetProduct(ProductId: int, Product: dict) -> None:
-    Products = ReadProducts()
-    query = {"_id": ProductId}
+    query = {"ID": ProductId}
     new = {"$set": Product}
-    Products.update_one(query, new)
+    set_item(get_connection(), "ordersystem", "products", query, new)
+
+def GetProducts():
+    all = get_all(get_connection(), "ordersystem", "products")
+    return all

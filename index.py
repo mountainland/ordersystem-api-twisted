@@ -2,11 +2,11 @@ from klein import run, route
 import json
 
 from order.classes import Order
-from order.functions import ReadOrders, GetOrder, SetOrder
+from order.functions import ReadOrders, GetOrder, SetOrder, GetOrders
 from product.classes import Product
-from product.functions import ReadProducts, GetProduct, SetProduct
+from product.functions import ReadProducts, GetProduct, SetProduct, GetProducts
 from customer.classes import Customer
-from customer.functions import ReadCustomers, GetCustomer, SetCustomer
+from customer.functions import ReadCustomers, GetCustomer, SetCustomer, GetCustomers
 
 from login.functions import CreateUser, IsPasswordRight, CheckLogin, GetUser
 
@@ -44,9 +44,9 @@ def orders(request):
         return str({"status": "OK", "id": OrderId, "price": Price})
 
     if request.method == b"GET":
-        orders = ReadOrders()
-        all_orders = orders.find()
-        return json.dumps({"orders": all_orders})
+        orders = GetOrders()
+        print(orders)
+        return json.dumps({"orders": orders})
 
 
 @route('/order/<int:OrderId>', methods=["GET", "POST"])
@@ -57,7 +57,7 @@ def order(request, OrderId):
 
         admin_required(request)
         content = json.loads(request.content.read())
-        if content["IsReady"] == True:
+        if content["IsReady"] == True: #TODO: Check what this does
             item = GetOrder(OrderId)
         item["IsReady"] = content["IsReady"]
         SetOrder(OrderId, item)
@@ -82,8 +82,10 @@ def products(request):
         return json.dumps({"status": "OK", "id": ProductId})
 
     if request.method == b"GET":
-
-        return json.dumps({"products": ReadProducts()["products"]})
+        
+        products_list = GetProducts()
+        
+        return json.dumps({"products": products_list})
 
 
 @route('/product/<int:ProductId>', methods=["GET", "POST"])
@@ -92,17 +94,17 @@ def product(request, ProductId):
 
     if request.method == b"POST":
         content = json.loads(request.content.read())
-        if content["IsReady"] == True:
-            item = GetProduct(ProductId)
+        #if content["IsReady"] == True:
+            #item = GetProduct(ProductId)
 
-        SetProduct(ProductId, item)
-        return str(item)
+        SetProduct(ProductId, content)
+        return json.dumps({"status": "OK"})
 
     if request.method == b"GET":
 
         ProductToReturn = GetProduct(ProductId)
 
-        return str(ProductToReturn)
+        return json.dumps(ProductToReturn)
 
 
 @route('/customers/', methods=["GET", "POST"])
@@ -118,7 +120,7 @@ def customers(request):
         return str({"status": "OK", "id": Id})
 
     if request.method == b"GET":
-        return json.dumps({"customers": ReadCustomers()["customers"]})
+        return json.dumps({"customers": GetCustomers()})
 
 
 @route('/customer/<int:CustomerId>', methods=["GET", "POST"])
@@ -133,10 +135,9 @@ def customer(request, CustomerId):
     if request.method == b"POST":
         content = json.loads(request.content.read())
         CustomerToReturn = GetCustomer(CustomerId)
-        for item in CustomerToReturn:
-            if item in content:
-                CustomerToReturn[item] = content[item]
-        SetCustomer(CustomerId, CustomerToReturn)
+        user = GetUser(request.getHeader('user'))
+        if user["is_admin"] == True:
+            SetCustomer(CustomerId, content, True)
 
         return json.dumps({"status": "Ok"})
 

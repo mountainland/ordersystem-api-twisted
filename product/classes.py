@@ -1,5 +1,4 @@
-from product.functions import ReadProducts, DumpProducts
-
+from product.functions import ReadProducts, DumpProducts, CreateProduct
 
 class Product():
     def __init__(self, Name, Price):
@@ -8,13 +7,5 @@ class Product():
         self.Id = None
 
     def DumpProduct(self) -> int:
-        if type(self.Name) != str or type(self.Price) != int:
-            raise TypeError("YOURE MONSTER")
-        Products = ReadProducts()
-        ProductId = len(Products["products"])+1
-        self.Id = ProductId
-        Products["products"].append(
-            {"Name": self.Name, "Price": self.Price, "Id": self.Id})
-        DumpProducts(Products)
-        self.Id = ProductId
-        return ProductId
+        ID = CreateProduct({"name": self.Name, "price": self.Price})
+        return ID
