@@ -57,11 +57,8 @@ def order(request, OrderId):
 
         admin_required(request)
         content = json.loads(request.content.read())
-        if content["IsReady"] == True: #TODO: Check what this does
-            item = GetOrder(OrderId)
-        item["IsReady"] = content["IsReady"]
-        SetOrder(OrderId, item)
-        return str(item)
+        SetOrder(OrderId, content)
+        return json.dumps({"status": "OK"})
 
     if request.method == b"GET":
 

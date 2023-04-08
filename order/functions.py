@@ -18,6 +18,6 @@ def GetOrder(OrderId: int) -> dict:
     return OrderToReturn
 
 def SetOrder(OrderId: int, Order: dict) -> None:    
-    query = {"_id": OrderId}
+    query = {"ID": OrderId}
     new = {"$set": Order}
     set_item(get_connection(), "ordersystem", "orders", query, new)
