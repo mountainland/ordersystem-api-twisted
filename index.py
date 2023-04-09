@@ -35,7 +35,7 @@ def login_required(request, response=""):
         abort(request, 401, response=response)
 
 
-@route("/id/<str:collection>", methods=["GET", "POST"])
+@route("/id/<string:collection>", methods=["GET", "POST"])
 def idi(request, collection):
     respons = get_id(collection)
     
