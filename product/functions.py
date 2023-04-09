@@ -1,25 +1,33 @@
-import json
+from db.db import get_connection, create_item, get_item, set_item, get_items, get_all
 
+def ReadProducts() -> dict: # TODO: Name isn't good, should probably be something, that lets you know, this is database
+    raise DeprecationWarning("ReadProducts() is deprecated, use GetProducts() instead")
+    myclient = get_connection()
+    mydb = myclient["ordersystem"]
+    mycol = mydb["products"]
 
-def ReadProducts() -> dict:
-    with open("data.json", "r") as f:
-        data = json.load(f)
-        return data
+    return mycol
 
 
 def DumpProducts(orders: dict) -> None:
-    with open("data.json", "w") as f:
-        json.dump(orders, f)
+    raise DeprecationWarning("DumpProducts() is deprecated") # TODO: This function is deprecated, and should be remowed from anywhere.
 
 
 def GetProduct(ProductId: int) -> dict:
-    Products = ReadProducts()
-    ProductToReturn = Products[ProductId]
-    return ProductToReturn
+    Product = get_item(get_connection(), "ordersystem", "products", {"ID": ProductId})
 
+    return Product
+
+def CreateProduct(Product):
+    ID = create_item(get_connection(), "ordersystem", "products", Product)
+    
+    return ID
 
 def SetProduct(ProductId: int, Product: dict) -> None:
-    Products = ReadProducts()
-    Products[ProductId] = Product
-    DumpProducts(Product)
+    query = {"ID": ProductId}
+    new = {"$set": Product}
+    set_item(get_connection(), "ordersystem", "products", query, new)
 
+def GetProducts():
+    all = get_all(get_connection(), "ordersystem", "products")
+    return all

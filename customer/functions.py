@@ -1,40 +1,61 @@
-import json
-
-from order import functions
+from db.db import get_connection, set_item, get_item, create_item, get_items, get_all
 
 
 def ReadCustomers() -> dict:
-    with open("data.json", "r") as f:
-        data = json.load(f)
-        return data
+    # This is deprecated and will be removed in a future release
+    raise DeprecationWarning("ReadCustomers is deprecated")
 
 
-def DumpCustomers(customers) -> None:
-    with open("data.json", "w") as f:
-        json.dump(customers, f)
-
-
-def GetCustomer(CustomerId) -> dict:
-    Customers = ReadCustomers()
-    CustomerToReturn = Customers["customers"][CustomerId]
-    CustomerToReturn["Balance"] -= CalcCustomer(CustomerId)
+def GetCustomer(CustomerId, recalculate=True) -> dict:
+    CustomerToReturn = get_item(
+        get_connection(), "ordersystem", "customers", {"ID": CustomerId})
+    print(CustomerToReturn)
+    CustomerToReturn["balance"] = int(CustomerToReturn["balance"])
+    if recalculate:
+        CustomerToReturn["balance"] -= int(CalcCustomer(CustomerId))
     return CustomerToReturn
 
 
-def CalcCustomer(CustomerId):
-    Orders = functions.ReadOrders()["customers"]
+def create_customer(customer_dict):
+    ID = create_item(get_connection(), "ordersystem",
+                     "customers", customer_dict)
+    return ID
 
+
+def CalcCustomer(CustomerId):
+    Orders = get_items(get_connection(), "ordersystem",
+                       "orders", {"customer": CustomerId})
     Sum = 0
 
     for Order in Orders:
-        if Order["Customer"] == CustomerId:
-            Sum -= Order["Price"]
+        # This was earlier -=, and it caused bug, that made infinite money glich.
+        Sum += Order["price"]
 
     return Sum
 
-def SetCustomer(Customerid, data):
-    customers = ReadCustomers()
 
-    customers["customers"][Customerid] = data
+def SetCustomer(Customerid, data, admin=False):
+    if admin:
+        if "balance" in data:
+            if data["balance"].startswith("="):
+                data["balance"] = data["balance"].replace("=","")
+                data["balance"] = int(data["balance"])
+                data["balance"] += CalcCustomer(Customerid)
+            else:
+                data["balance"] = int(data["balance"])
+                custo = GetCustomer(Customerid, False)
+                balance = custo.get("balance")
+                
+                data["balance"] += balance
+                
+    
+    query = {"ID": Customerid}
+    # if you remove $set this wont work: https://www.mongodb.com/docs/manual/reference/operator/update/set/
+    new = {"$set": data}
+    set_item(get_connection(), "ordersystem", "customers", query, new)
 
-    DumpCustomers(customers)
+
+def GetCustomers():
+    customers = get_all(get_connection(), "ordersystem", "customers")
+
+    return customers
