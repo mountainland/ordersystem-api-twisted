@@ -12,6 +12,7 @@ from login.functions import CreateUser, IsPasswordRight, CheckLogin, GetUser
 
 from config import config
 
+from db.db import get_id
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
@@ -33,6 +34,13 @@ def login_required(request, response=""):
             response = json.dumps({"error": "Login required"})
         abort(request, 401, response=response)
 
+
+@route("/id/<str:collection>", methods=["GET", "POST"])
+def idi(request, collection):
+    respons = get_id(collection)
+    
+    return respons
+        
 
 @route('/orders/', methods=["GET", "POST"])
 def orders(request):

@@ -13,6 +13,15 @@ URL = f"mongodb://{IP}:27017/"
 # OTHER SERVERS:
 SERVERS = []
 
+MAIN_ID_SERVER = ""
+
+AM_I_ID_SERVER = False
+
+
+if MAIN_ID_SERVER == "":
+
+    AM_I_ID_SERVER = True
+
 USERNAME = "admin"
 
 # FOr getting userinfo from other servers

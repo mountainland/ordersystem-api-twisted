@@ -6,6 +6,8 @@ import copy
 
 from config import config
 
+import requests
+
 import bson
 
 from bson.json_util import dumps as bson_dumps, loads as bson_loads
@@ -46,15 +48,25 @@ def get_items(client, database, collection, query):
     return all
 
 def get_id(collection):
-    with open("ids.json", "r") as f:
-        data = json.load(f)
-    
-    Id = data[collection]["id"]
-    
-    with open("ids.json", "w") as f:
-        data[collection]["id"] = int(Id) + 1
-        json.dump(data, f)
-    
+    if config.AM_I_ID_SERVER:
+        
+        with open("ids.json", "r") as f:
+            data = json.load(f)
+        
+        Id = data[collection]["id"]
+        
+        with open("ids.json", "w") as f:
+            data[collection]["id"] = int(Id) + 1
+            json.dump(data, f)
+    else:
+        try:
+            Id = requests.get(f"{config.MAIN_ID_SERVER}/id/{collection}")
+            Id.raise_for_status()
+        except:
+            raise ConnectionError("Could not get response from main server")
+        else:
+            Id = Id.text
+            
     return Id       
 
 def create_item(client, database, collection, item):
