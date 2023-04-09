@@ -8,3 +8,12 @@ SALT = b""  # Your salt for hashing
 # Database url
 IP = "127.0.0.1"
 URL = f"mongodb://{IP}:27017/"
+
+
+# OTHER SERVERS:
+SERVERS = []
+
+USERNAME = "admin"
+
+# FOr getting userinfo from other servers
+PASSWORD = "admin"
