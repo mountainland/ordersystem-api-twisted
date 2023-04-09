@@ -16,10 +16,8 @@ from db.db import get_id
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
-    print("ABORT")
-    raise TypeError()
-    return response
-
+    request.write(response)
+    request.finish()
 
 def admin_required(request, response=""):
     user = GetUser(request.getHeader('user'), request.getHeader('password'))
@@ -164,6 +162,7 @@ def users(request):
 @route("/login/", methods=["POST"])
 def login(request):
 
+    
     login_required(request, json.dumps(
         {"error": "Väärä salasana tai käyttäjänimi"}))
 
