@@ -16,9 +16,8 @@ from db.db import get_id
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
-    print("ABORT")
-    return response
-
+    request.write(str(response).decode())
+    request.finish()
 
 def admin_required(request, response=""):
     user = GetUser(request.getHeader('user'), request.getHeader('password'))
@@ -35,7 +34,7 @@ def login_required(request, response=""):
         abort(request, 401, response=response)
 
 
-@route("/id/<str:collection>", methods=["GET", "POST"])
+@route("/id/<string:collection>", methods=["GET", "POST"])
 def idi(request, collection):
     respons = get_id(collection)
     
@@ -163,6 +162,7 @@ def users(request):
 @route("/login/", methods=["POST"])
 def login(request):
 
+    
     login_required(request, json.dumps(
         {"error": "Väärä salasana tai käyttäjänimi"}))
 
