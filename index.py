@@ -15,7 +15,7 @@ from config import config
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
-    return ""
+    return response
 
 
 def admin_required(request, response=""):

@@ -60,26 +60,20 @@ def HashPassword(Password):
 
 def IsPasswordRight(Username, Password):
     try:
-        User = GetUser(Username)
+        User = GetUser(Username, Password)
 
         if User.get("password") == Password:
             return True, User
 
-        elif bcrypt.checkpw(str.encode(Password), User.get("password")):
-            return True, User
-
-        elif bcrypt.checkpw(HashPassword(str.encode(Password)), User.get("password")):
-            return True, User
-
         else:
-            return False
+            return False, None
 
     except UserNotFoundException:
-        data = CheckFromServer(SERVERS, Username, Password, is_right=True):
+        data = CheckFromServer(SERVERS, Username, Password, is_right=True)
         if data[0] == True:
             return True, data[1]
         else:
-            return False
+            return False, None
 
 
 def DumpUsers(Users):
