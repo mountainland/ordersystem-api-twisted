@@ -17,6 +17,7 @@ from db.db import get_id
 def abort(request, code, response=""):
     request.setResponseCode(code)
     print("ABORT")
+    raise TypeError()
     return response
 
 
