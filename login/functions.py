@@ -97,8 +97,8 @@ def DumpUser(User):
 
 
 def CreateUser(Username, Password, Firstname, Lastname, Creator, IsAdmin):
-    User = {"username": Username, "password": HashPassword(
-        Password), "firstname": Firstname, "lastname": Lastname, "creator": Creator, "is_admin": IsAdmin}
+    User = {"username": Username, "password": 
+        Password, "firstname": Firstname, "lastname": Lastname, "creator": Creator, "is_admin": IsAdmin}
 
     DumpUser(User)
 
