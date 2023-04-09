@@ -16,7 +16,7 @@ from db.db import get_id
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
-    request.write(response)
+    request.write(str(response).decode())
     request.finish()
 
 def admin_required(request, response=""):
