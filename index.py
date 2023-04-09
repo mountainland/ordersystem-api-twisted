@@ -15,6 +15,7 @@ from config import config
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
+    print("ABORT")
     return response
 
 
