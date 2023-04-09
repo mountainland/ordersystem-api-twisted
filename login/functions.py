@@ -3,8 +3,11 @@ import bcrypt
 
 from exceptions.exceptions import UserNotFoundException
 
-from config.config import SALT
+import requests
 
+from config.config import SALT, USERNAME, PASSWORD
+
+from config.config import SERVERS
 
 def ReadUsers() -> dict:
     with open("users.json", "r") as f:
@@ -12,15 +15,33 @@ def ReadUsers() -> dict:
 
     return data["users"]
 
+def CheckFromServer(servers, username, password, is_right=False):
+    user = None
+    for server in servers:
+        data = requests.post(f"{server}/login/", headers={"user": username, "password": password})
+        
+        if data.status_code == 200:
+            
+            user = data.text
+            
+            user = json.loads(user)
+            
+            return True, user
+    return False, user
+        
 
-def GetUser(Username) -> dict:
+def GetUser(Username, Password) -> dict:
     Users = ReadUsers()
 
     for User in Users:
         if User["username"] == Username:
             return User
-
-    raise UserNotFoundException(Username)
+    
+    user = CheckFromServer(SERVERS, Username, Password)
+    if not user[0] == True:
+        raise UserNotFoundException(Username)
+    
+    return user[1]
 
 
 def HashPassword(Password):
@@ -41,20 +62,24 @@ def IsPasswordRight(Username, Password):
     try:
         User = GetUser(Username)
 
-        if User["password"] == Password:
-            return True
+        if User.get("password") == Password:
+            return True, User
 
-        elif bcrypt.checkpw(str.encode(Password), User["password"]):
-            return True
+        elif bcrypt.checkpw(str.encode(Password), User.get("password")):
+            return True, User
 
-        elif bcrypt.checkpw(HashPassword(str.encode(Password)), User["password"]):
-            return True
+        elif bcrypt.checkpw(HashPassword(str.encode(Password)), User.get("password")):
+            return True, User
 
         else:
             return False
 
     except UserNotFoundException:
-        return False
+        data = CheckFromServer(SERVERS, Username, Password, is_right=True):
+        if data[0] == True:
+            return True, data[1]
+        else:
+            return False
 
 
 def DumpUsers(Users):
@@ -85,7 +110,7 @@ def CheckLogin(request):
     user = request.getHeader('user')
     token = request.getHeader('password')
 
-    if IsPasswordRight(user, token):
+    if IsPasswordRight(user, token)[0] == True:
         return True
 
     else:

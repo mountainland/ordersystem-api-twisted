@@ -19,7 +19,7 @@ def abort(request, code, response=""):
 
 
 def admin_required(request, response=""):
-    user = GetUser(request.getHeader('user'))
+    user = GetUser(request.getHeader('user'), request.getHeader('password'))
     if not user["is_admin"] == True:
         if response == "":
             response = json.dumps({"error": "Admin level access required"})
@@ -158,7 +158,7 @@ def login(request):
         {"error": "Väärä salasana tai käyttäjänimi"}))
 
     username = request.getHeader('user')
-    user = GetUser(username)
+    user = GetUser(username, request.getHeader('password'))
     return json.dumps({"is_admin": user.get("is_admin")})
 
 
