@@ -1,6 +1,6 @@
 from klein import run, route
 import json
-
+import requests
 from order.classes import Order
 from order.functions import ReadOrders, GetOrder, SetOrder, GetOrders
 from product.classes import Product
@@ -12,11 +12,11 @@ from login.functions import CreateUser, IsPasswordRight, CheckLogin, GetUser
 
 from config import config
 
-from db.db import get_id
+from db.db import get_id, get_connection
 
 def abort(request, code, response=""):
     request.setResponseCode(code)
-    request.write(str(response).decode())
+    request.write(response.encode())
     request.finish()
 
 def admin_required(request, response=""):
@@ -55,6 +55,19 @@ def orders(request):
         orders = GetOrders()
         return json.dumps({"orders": orders})
 
+@route("/status/", methods=["GET", "POST"])
+def get_status(request):
+    tests = True
+    try:
+        get_connection()
+    except:
+        tests = False
+
+    if tests:
+        abort(request, 200, json.dumps({"status": "OK"}))
+        
+    else:
+        abort(request, 500, json.dumps({"status": "FAIL"}))
 
 @route('/order/<int:OrderId>', methods=["GET", "POST"])
 def order(request, OrderId):
