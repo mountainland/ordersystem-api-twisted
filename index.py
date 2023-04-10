@@ -152,7 +152,7 @@ def customer(request, CustomerId):
     if request.method == b"POST":
         content = json.loads(request.content.read())
         CustomerToReturn = GetCustomer(CustomerId)
-        user = GetUser(request.getHeader('user'))
+        user = GetUser(request.getHeader('user'), request.getHeader("password"))
         if user["is_admin"] == True:
             SetCustomer(CustomerId, content, True)
 
