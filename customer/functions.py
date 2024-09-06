@@ -8,7 +8,8 @@ def ReadCustomers() -> dict:
 
 def GetCustomer(CustomerId, recalculate=True) -> dict:
     CustomerToReturn = get_item(
-        get_connection(), "ordersystem", "customers", {"ID": CustomerId})
+        get_connection(), "ordersystem", "customers", {"ID": CustomerId}
+    )
     print(CustomerToReturn)
     CustomerToReturn["balance"] = int(CustomerToReturn["balance"])
     if recalculate:
@@ -17,14 +18,14 @@ def GetCustomer(CustomerId, recalculate=True) -> dict:
 
 
 def create_customer(customer_dict):
-    ID = create_item(get_connection(), "ordersystem",
-                     "customers", customer_dict)
+    ID = create_item(get_connection(), "ordersystem", "customers", customer_dict)
     return ID
 
 
 def CalcCustomer(CustomerId):
-    Orders = get_items(get_connection(), "ordersystem",
-                       "orders", {"customer": CustomerId})
+    Orders = get_items(
+        get_connection(), "ordersystem", "orders", {"customer": CustomerId}
+    )
     Sum = 0
 
     for Order in Orders:
@@ -38,17 +39,16 @@ def SetCustomer(Customerid, data, admin=False):
     if admin:
         if "balance" in data:
             if data["balance"].startswith("="):
-                data["balance"] = data["balance"].replace("=","")
+                data["balance"] = data["balance"].replace("=", "")
                 data["balance"] = int(data["balance"])
                 data["balance"] += CalcCustomer(Customerid)
             else:
                 data["balance"] = int(data["balance"])
                 custo = GetCustomer(Customerid, False)
                 balance = custo.get("balance")
-                
+
                 data["balance"] += balance
-                
-    
+
     query = {"ID": Customerid}
     # if you remove $set this wont work: https://www.mongodb.com/docs/manual/reference/operator/update/set/
     new = {"$set": data}
