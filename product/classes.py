@@ -1,6 +1,7 @@
 from product.functions import ReadProducts, DumpProducts, CreateProduct
 
-class Product():
+
+class Product:
     def __init__(self, Name, Price):
         self.Name: str = Name
         self.Price: int = Price

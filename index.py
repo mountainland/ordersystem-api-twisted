@@ -14,13 +14,15 @@ from config import config
 
 from db.db import get_id, get_connection
 
+
 def abort(request, code, response=""):
     request.setResponseCode(code)
     request.write(response.encode())
     request.finish()
 
+
 def admin_required(request, response=""):
-    user = GetUser(request.getHeader('user'), request.getHeader('password'))
+    user = GetUser(request.getHeader("user"), request.getHeader("password"))
     if not user["is_admin"] == True:
         if response == "":
             response = json.dumps({"error": "Admin level access required"})
@@ -37,11 +39,11 @@ def login_required(request, response=""):
 @route("/id/<string:collection>", methods=["GET", "POST"])
 def idi(request, collection):
     respons = get_id(collection)
-    
-    return respons
-        
 
-@route('/orders/', methods=["GET", "POST"])
+    return respons
+
+
+@route("/orders/", methods=["GET", "POST"])
 def orders(request):
     login_required(request)
 
@@ -55,6 +57,7 @@ def orders(request):
         orders = GetOrders()
         return json.dumps({"orders": orders})
 
+
 @route("/status/", methods=["GET", "POST"])
 def get_status(request):
     tests = True
@@ -65,11 +68,12 @@ def get_status(request):
 
     if tests:
         abort(request, 200, json.dumps({"status": "OK"}))
-        
+
     else:
         abort(request, 500, json.dumps({"status": "FAIL"}))
 
-@route('/order/<int:OrderId>', methods=["GET", "POST"])
+
+@route("/order/<int:OrderId>", methods=["GET", "POST"])
 def order(request, OrderId):
     login_required(request)
 
@@ -87,7 +91,7 @@ def order(request, OrderId):
         return str(OrderToReturn)
 
 
-@route('/products/', methods=["GET", "POST"])
+@route("/products/", methods=["GET", "POST"])
 def products(request):
     login_required(request)
 
@@ -99,20 +103,20 @@ def products(request):
         return json.dumps({"status": "OK", "id": ProductId})
 
     if request.method == b"GET":
-        
+
         products_list = GetProducts()
-        
+
         return json.dumps({"products": products_list})
 
 
-@route('/product/<int:ProductId>', methods=["GET", "POST"])
+@route("/product/<int:ProductId>", methods=["GET", "POST"])
 def product(request, ProductId):
     login_required(request)
 
     if request.method == b"POST":
         content = json.loads(request.content.read())
-        #if content["IsReady"] == True:
-            #item = GetProduct(ProductId)
+        # if content["IsReady"] == True:
+        # item = GetProduct(ProductId)
 
         SetProduct(ProductId, content)
         return json.dumps({"status": "OK"})
@@ -124,7 +128,7 @@ def product(request, ProductId):
         return json.dumps(ProductToReturn)
 
 
-@route('/customers/', methods=["GET", "POST"])
+@route("/customers/", methods=["GET", "POST"])
 def customers(request):
     login_required(request)
 
@@ -132,7 +136,11 @@ def customers(request):
 
         content = json.loads(request.content.read())
         CustomerItem = Customer(
-            content["FirstName"], content["LastName"], content["PhoneNumber"], content["Email"])
+            content["FirstName"],
+            content["LastName"],
+            content["PhoneNumber"],
+            content["Email"],
+        )
         Id = CustomerItem.DumpCustomer()
         return str({"status": "OK", "id": Id})
 
@@ -140,7 +148,7 @@ def customers(request):
         return json.dumps({"customers": GetCustomers()})
 
 
-@route('/customer/<int:CustomerId>', methods=["GET", "POST"])
+@route("/customer/<int:CustomerId>", methods=["GET", "POST"])
 def customer(request, CustomerId):
     login_required(request)
 
@@ -152,14 +160,14 @@ def customer(request, CustomerId):
     if request.method == b"POST":
         content = json.loads(request.content.read())
         CustomerToReturn = GetCustomer(CustomerId)
-        user = GetUser(request.getHeader('user'), request.getHeader("password"))
+        user = GetUser(request.getHeader("user"), request.getHeader("password"))
         if user["is_admin"] == True:
             SetCustomer(CustomerId, content, True)
 
         return json.dumps({"status": "Ok"})
 
 
-@route('/users/', methods=["POST"])
+@route("/users/", methods=["POST"])
 def users(request):
     login_required(request)
 
@@ -168,19 +176,23 @@ def users(request):
 
         data = json.loads(request.content.read())
 
-        CreateUser(data["username"], data["password"], data["firstname"],
-                   data["lastname"], request.getHeader('user'), data.get('is_admin', False))
+        CreateUser(
+            data["username"],
+            data["password"],
+            data["firstname"],
+            data["lastname"],
+            request.getHeader("user"),
+            data.get("is_admin", False),
+        )
 
 
 @route("/login/", methods=["POST"])
 def login(request):
 
-    
-    login_required(request, json.dumps(
-        {"error": "Väärä salasana tai käyttäjänimi"}))
+    login_required(request, json.dumps({"error": "Väärä salasana tai käyttäjänimi"}))
 
-    username = request.getHeader('user')
-    user = GetUser(username, request.getHeader('password'))
+    username = request.getHeader("user")
+    user = GetUser(username, request.getHeader("password"))
     return json.dumps({"is_admin": user.get("is_admin")})
 
 

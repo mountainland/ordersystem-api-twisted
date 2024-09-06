@@ -1,7 +1,15 @@
 from .functions import CreateOrder
 
-class Order():
-    def __init__(self, Order: list, Customer: int, Price: int = 0, IsReady: bool = False, Picked: bool = False):
+
+class Order:
+    def __init__(
+        self,
+        Order: list,
+        Customer: int,
+        Price: int = 0,
+        IsReady: bool = False,
+        Picked: bool = False,
+    ):
         self.Order: list = Order
         self.Customer: int = Customer
         self.Price: int = Price
@@ -20,5 +28,13 @@ class Order():
         if self.Price == 0:
             self.CalcPrice()
 
-        ID = CreateOrder({"order": self.Order, "customer": self.Customer, "price": self.Price, "is_ready": self.IsReady, "picked": self.Picked})
+        ID = CreateOrder(
+            {
+                "order": self.Order,
+                "customer": self.Customer,
+                "price": self.Price,
+                "is_ready": self.IsReady,
+                "picked": self.Picked,
+            }
+        )
         return ID, self.Price
